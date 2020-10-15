@@ -8,9 +8,6 @@ import { Response } from "express";
 import { NextFunction } from "express";
 import { RedisKey } from "./index.d";
 
-// Creating Redis CLient.
-let redisClient = redis.createClient();
-
 /**
  * This function sets limiter header value and then calls limiter function
  * that based on maximum requests for a fixed time window, accepts or not
@@ -22,14 +19,16 @@ let redisClient = redis.createClient();
  */
 export default function strongbox(
   value?: string,
-  maxRequests: number = 2,
-  timeWindow: number = 5
+  maxRequests: number = 150,
+  timeWindow: number = 60,
+  redisPort: number = 6379
 ) {
+  // Creating Redis CLient.
+  let redisClient = redis.createClient({ port: redisPort });
+
   return (req: Request, res: Response, next: NextFunction) => {
     // Sets strongbox's HTTP request header.
-    let key: any = value 
-      ? req.headers[value]
-      : req.ip;
+    let key: any = value ? req.headers[value] : req.ip;
 
     // Checks if redisKey exists.
     redisClient.exists(key, (error: any, reply: any) => {
@@ -76,34 +75,34 @@ export default function strongbox(
         });
       } else {
         // If reply is equal to 0, we create a new key in redis store.
-        setRedisKey(key); 
+        setRedisKey(key);
         return next();
       }
     });
   };
-}
 
-/**
- * This function is used to set a redis key with a counter and a timestamp.
- *
- * @param key Redis Store key.
- * @param count Key's request counter.
- * @param time Key's timestamp.
- */
-function setRedisKey(
-  key: string,
-  count: number = 1,
-  time: number = moment().unix()
-) {
-  // Declaration spot.
-  let data: RedisKey = {
-    timestamp: time,
-    counter: count,
-  };
+  /**
+   * This function is used to set a redis key with a counter and a timestamp.
+   *
+   * @param key Redis Store key.
+   * @param count Key's request counter.
+   * @param time Key's timestamp.
+   */
+  function setRedisKey(
+    key: string,
+    count: number = 1,
+    time: number = moment().unix()
+  ) {
+    // Declaration spot.
+    let data: RedisKey = {
+      timestamp: time,
+      counter: count,
+    };
 
-  // Setting redis key.
-  redisClient.set(key, JSON.stringify(data));
+    // Setting redis key.
+    redisClient.set(key, JSON.stringify(data));
 
-  // Returning context back.
-  return;
+    // Returning context back.
+    return;
+  }
 }

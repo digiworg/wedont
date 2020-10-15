@@ -6,8 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Importing: Modules.
 var redis_1 = __importDefault(require("redis"));
 var moment_1 = __importDefault(require("moment"));
-// Creating Redis CLient.
-var redisClient = redis_1.default.createClient();
 /**
  * This function sets limiter header value and then calls limiter function
  * that based on maximum requests for a fixed time window, accepts or not
@@ -17,14 +15,15 @@ var redisClient = redis_1.default.createClient();
  * @param maxRequests maximum number of requests.
  * @param timeWindow time window expressed in seconds.
  */
-function strongbox(value, maxRequests, timeWindow) {
-    if (maxRequests === void 0) { maxRequests = 2; }
-    if (timeWindow === void 0) { timeWindow = 5; }
+function strongbox(value, maxRequests, timeWindow, redisPort) {
+    if (maxRequests === void 0) { maxRequests = 150; }
+    if (timeWindow === void 0) { timeWindow = 60; }
+    if (redisPort === void 0) { redisPort = 6379; }
+    // Creating Redis CLient.
+    var redisClient = redis_1.default.createClient({ port: redisPort });
     return function (req, res, next) {
         // Sets strongbox's HTTP request header.
-        var key = value
-            ? req.headers[value]
-            : req.ip;
+        var key = value ? req.headers[value] : req.ip;
         // Checks if redisKey exists.
         redisClient.exists(key, function (error, reply) {
             // If there is a connection error, node process will be closed.
@@ -74,25 +73,25 @@ function strongbox(value, maxRequests, timeWindow) {
             }
         });
     };
+    /**
+     * This function is used to set a redis key with a counter and a timestamp.
+     *
+     * @param key Redis Store key.
+     * @param count Key's request counter.
+     * @param time Key's timestamp.
+     */
+    function setRedisKey(key, count, time) {
+        if (count === void 0) { count = 1; }
+        if (time === void 0) { time = moment_1.default().unix(); }
+        // Declaration spot.
+        var data = {
+            timestamp: time,
+            counter: count,
+        };
+        // Setting redis key.
+        redisClient.set(key, JSON.stringify(data));
+        // Returning context back.
+        return;
+    }
 }
 exports.default = strongbox;
-/**
- * This function is used to set a redis key with a counter and a timestamp.
- *
- * @param key Redis Store key.
- * @param count Key's request counter.
- * @param time Key's timestamp.
- */
-function setRedisKey(key, count, time) {
-    if (count === void 0) { count = 1; }
-    if (time === void 0) { time = moment_1.default().unix(); }
-    // Declaration spot.
-    var data = {
-        timestamp: time,
-        counter: count,
-    };
-    // Setting redis key.
-    redisClient.set(key, JSON.stringify(data));
-    // Returning context back.
-    return;
-}
