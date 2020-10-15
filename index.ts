@@ -17,7 +17,7 @@ import { RedisKey } from "./index.d";
  * @param maxRequests maximum number of requests.
  * @param timeWindow time window expressed in seconds.
  */
-export default function wedowall(
+export default function wedont(
   value?: string,
   maxRequests: number = 150,
   timeWindow: number = 60,
@@ -27,7 +27,7 @@ export default function wedowall(
   let redisClient = redis.createClient({ port: redisPort });
 
   return (req: Request, res: Response, next: NextFunction) => {
-    // Sets wedowall's HTTP request header.
+    // Sets wedont's HTTP request header.
     let key: any = value ? req.headers[value] : req.ip;
 
     // Checks if redisKey exists.

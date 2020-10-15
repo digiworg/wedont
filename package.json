@@ -1,6 +1,6 @@
 {
-  "name": "wedowall",
-  "version": "1.1.0",
+  "name": "wedont",
+  "version": "1.0.1",
   "description": "A Node.js Rate Limiter for safely securing your APIs.",
   "main": "index.js",
   "typings": "index.d.ts",
