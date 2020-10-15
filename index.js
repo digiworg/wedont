@@ -15,14 +15,14 @@ var moment_1 = __importDefault(require("moment"));
  * @param maxRequests maximum number of requests.
  * @param timeWindow time window expressed in seconds.
  */
-function strongbox(value, maxRequests, timeWindow, redisPort) {
+function wedowall(value, maxRequests, timeWindow, redisPort) {
     if (maxRequests === void 0) { maxRequests = 150; }
     if (timeWindow === void 0) { timeWindow = 60; }
     if (redisPort === void 0) { redisPort = 6379; }
     // Creating Redis CLient.
     var redisClient = redis_1.default.createClient({ port: redisPort });
     return function (req, res, next) {
-        // Sets strongbox's HTTP request header.
+        // Sets wedowall's HTTP request header.
         var key = value ? req.headers[value] : req.ip;
         // Checks if redisKey exists.
         redisClient.exists(key, function (error, reply) {
@@ -94,4 +94,4 @@ function strongbox(value, maxRequests, timeWindow, redisPort) {
         return;
     }
 }
-exports.default = strongbox;
+exports.default = wedowall;
