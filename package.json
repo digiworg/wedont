@@ -2,10 +2,12 @@
   "name": "strongbox",
   "version": "1.1.0",
   "description": "A Node.js Rate Limiter for safely securing your APIs.",
+  "main": "index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "digidevs",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.8",
